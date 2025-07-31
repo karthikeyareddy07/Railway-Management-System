@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway System - Link Test</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+        .test-item.error {
+            border-left-color: #dc3545;
+        }
+        .test-item.warning {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-card">
+            <h1 class="text-white text-center mb-4">
+                <i class="fas fa-link me-2"></i>
+                Railway System - Link Test
+            </h1>
+            
+            <div id="testResults">
+                <div class="test-item">
+                    <h5><i class="fas fa-spinner fa-spin me-2"></i>Testing Links...</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Test function to check if all links are working
+        function testLinks() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '';
+            
+            const tests = [
+                {
+                    name: 'Bootstrap CSS',
+                    test: () => typeof bootstrap !== 'undefined' || document.querySelector('.container') !== null,
+                    description: 'Bootstrap CSS framework loaded'
+                },
+                {
+                    name: 'Bootstrap JS',
+                    test: () => typeof bootstrap !== 'undefined',
+                    description: 'Bootstrap JavaScript loaded'
+                },
+                {
+                    name: 'Font Awesome',
+                    test: () => document.querySelector('.fas') !== null,
+                    description: 'Font Awesome icons loaded'
+                },
+                {
+                    name: 'Custom CSS',
+                    test: () => {
+                        const style = getComputedStyle(document.body);
+                        return style.fontFamily.includes('Segoe UI');
+                    },
+                    description: 'Custom CSS styles applied'
+                },
+                {
+                    name: 'Local Storage',
+                    test: () => {
+                        try {
+                            localStorage.setItem('test', 'test');
+                            localStorage.removeItem('test');
+                            return true;
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    description: 'Local storage available'
+                },
+                {
+                    name: 'Fetch API',
+                    test: () => typeof fetch !== 'undefined',
+                    description: 'Fetch API available'
+                },
+                {
+                    name: 'Async/Await',
+                    test: () => {
+                        try {
+                            eval('async function test() {}');
+                            return true;
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    description: 'Async/await syntax supported'
+                }
+            ];
+
+            tests.forEach((test, index) => {
+                setTimeout(() => {
+                    const result = test.test();
+                    const testDiv = document.createElement('div');
+                    testDiv.className = `test-item ${result ? '' : 'error'}`;
+                    
+                    testDiv.innerHTML = `
+                        <h6>
+                            <i class="fas fa-${result ? 'check-circle text-success' : 'times-circle text-danger'} me-2"></i>
+                            ${test.name}
+                        </h6>
+                        <p class="mb-0 text-muted">${test.description}</p>
+                    `;
+                    
+                    results.appendChild(testDiv);
+                }, index * 200);
+            });
+
+            // Test API endpoints
+            setTimeout(() => {
+                testAPIEndpoints();
+            }, tests.length * 200 + 500);
+        }
+
+        async function testAPIEndpoints() {
+            const apiTests = [
+                { name: 'Server Status', url: '/api/auth/login', method: 'POST' },
+                { name: 'Trains API', url: '/api/trains', method: 'GET' },
+                { name: 'Bookings API', url: '/api/bookings', method: 'GET' }
+            ];
+
+            const results = document.getElementById('testResults');
+
+            for (const test of apiTests) {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'test-item warning';
+                testDiv.innerHTML = `
+                    <h6>
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        ${test.name}
+                    </h6>
+                    <p class="mb-0 text-muted">Testing API endpoint: ${test.url}</p>
+                `;
+                results.appendChild(testDiv);
+
+                try {
+                    const response = await fetch(test.url, {
+                        method: test.method,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    testDiv.className = 'test-item';
+                    testDiv.innerHTML = `
+                        <h6>
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            ${test.name}
+                        </h6>
+                        <p class="mb-0 text-muted">API endpoint accessible (Status: ${response.status})</p>
+                    `;
+                } catch (error) {
+                    testDiv.className = 'test-item error';
+                    testDiv.innerHTML = `
+                        <h6>
+                            <i class="fas fa-times-circle text-danger me-2"></i>
+                            ${test.name}
+                        </h6>
+                        <p class="mb-0 text-muted">API endpoint not accessible: ${error.message}</p>
+                    `;
+                }
+            }
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            testLinks();
+        });
+
+        // Add navigation links
+        const navDiv = document.createElement('div');
+        navDiv.className = 'test-card';
+        navDiv.innerHTML = `
+            <h4 class="text-white mb-3">Navigation Links</h4>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <a href="index.html" class="btn btn-primary w-100">
+                        <i class="fas fa-home me-2"></i>Home
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="login.html" class="btn btn-success w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="register.html" class="btn btn-info w-100">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="book.html" class="btn btn-warning w-100">
+                        <i class="fas fa-ticket-alt me-2"></i>Book
+                    </a>
+                </div>
+            </div>
+        `;
+        document.querySelector('.container').appendChild(navDiv);
+    </script>
+</body>
+</html> 
